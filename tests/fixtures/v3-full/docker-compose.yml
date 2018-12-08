@@ -48,7 +48,7 @@ services:
       - type: volume
         target: /anonymous
       - type: volume
-        source: foobar
+        source: foobar2
         target: /container/volumepath2
         volume:
           nocopy: true
@@ -56,5 +56,8 @@ services:
     stop_grace_period: 20s
 volumes:
   foobar:
+    labels:
+      com.docker.compose.test: 'true'
+  foobar2:
     labels:
       com.docker.compose.test: 'true'

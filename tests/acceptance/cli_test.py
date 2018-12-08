@@ -455,6 +455,11 @@ class CLITestCase(DockerClientTestCase):
                         'com.docker.compose.test': 'true',
                     },
                 },
+                'foobar2': {
+                    'labels': {
+                        'com.docker.compose.test': 'true',
+                    },
+                },
             },
             'services': {
                 'web': {
@@ -510,7 +515,7 @@ class CLITestCase(DockerClientTestCase):
                     }, {
                         'target': '/anonymous', 'type': 'volume'
                     }, {
-                        'source': 'foobar',
+                        'source': 'foobar2',
                         'target': '/container/volumepath2',
                         'type': 'volume',
                         'volume': {'nocopy': True}

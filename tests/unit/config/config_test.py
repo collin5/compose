@@ -3071,6 +3071,44 @@ class ConfigTest(unittest.TestCase):
         )
         config.load(config_details)
 
+    @mock.patch('compose.config.config.log')
+    def test_config_duplicate_mount_points(self, mock_log):
+        config1 = build_config_details(
+            {
+                'version': '3.5',
+                'services': {
+                    'web': {
+                        'image': 'busybox',
+                        'volumes': ['/tmp/foo:/tmp/foo', '/tmp/foo:/tmp/foo:rw']
+                    }
+                }
+            }
+        )
+
+        config2 = build_config_details(
+            {
+                'version': '3.5',
+                'services': {
+                    'web': {
+                        'image': 'busybox',
+                        'volumes': ['/x:/y', '/z:/y']
+                    }
+                }
+            }
+        )
+
+        with self.assertRaises(SystemExit) as e:
+            config.load(config1)
+            assert e.exception.code == 1
+        mock_log.error.assert_called_with('Duplicate mount points: [%s]' % (
+            ', '.join(['/tmp/foo:/tmp/foo']*2)))
+
+        with self.assertRaises(SystemExit) as e:
+            config.load(config2)
+            assert e.exception.code == 1
+        mock_log.error.assert_called_with('Duplicate mount points: [%s]' % (
+            ', '.join(['/x:/y', '/z:/y'])))
+
 
 class NetworkModeTest(unittest.TestCase):
 

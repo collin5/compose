@@ -847,7 +847,7 @@ def finalize_service_volumes(service_dict, environment):
                 duplicate_mounts.append("%s:%s" % (external, internal))
 
         if duplicate_mounts:
-            log.error("Duplicate mount points: volumes [%s]" % (
+            log.error("Duplicate mount points: [%s]" % (
                 ', '.join(duplicate_mounts)))
             sys.exit(1)
         
