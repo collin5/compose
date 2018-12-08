@@ -8,6 +8,7 @@ import os
 import string
 import sys
 from collections import namedtuple
+from operator import itemgetter
 
 import six
 import yaml
@@ -835,6 +836,21 @@ def finalize_service_volumes(service_dict, environment):
                 finalized_volumes.append(MountSpec.parse(v, normalize, win_host))
             else:
                 finalized_volumes.append(VolumeSpec.parse(v, normalize, win_host))
+
+        duplicate_mounts = []
+        mounts = [(v.external, v.internal) for v in [_v.as_volume_spec()
+                                                     if hasattr(_v, 'as_volume_spec')
+                                                     else _v for _v in finalized_volumes]]
+        for external, internal in mounts:
+            if external and list(map(itemgetter(0), mounts)).count(
+                    external) > 1 or list(map(itemgetter(1), mounts)).count(internal) > 1:
+                duplicate_mounts.append("%s:%s" % (external, internal))
+
+        if duplicate_mounts:
+            log.error("Duplicate mount points: volumes [%s]" % (
+                ', '.join(duplicate_mounts)))
+            sys.exit(1)
+        
         service_dict['volumes'] = finalized_volumes
 
     return service_dict
